@@ -3,8 +3,8 @@ package questao1;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ArrayList; // Mantido por compatibilidade, mas a lógica usa Map
-import java.util.List;    // Mantido por compatibilidade, mas a lógica usa Map
+//REMOVIDOS: import java.util.ArrayList; 
+//REMOVIDOS: import java.util.List;  
 
 /**
  * Perform "web search" (from a  file), notify the interested observers of each query.
