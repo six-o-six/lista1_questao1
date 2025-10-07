@@ -1,7 +1,11 @@
 package questao1;
 
+import questao1.WebSearchModel.QueryObserver;
+
 /**
- * Watches the search queries
+ * Watches the search queries.
+ * Implementa o padrão Observer (Observador) e define qual política de filtro
+ * (Strategy) deseja usar para receber notificações.
  */
 public class Snooper {
     private final WebSearchModel model;
@@ -9,15 +13,32 @@ public class Snooper {
     public Snooper(WebSearchModel model) {
         this.model = model;
 
-        // O Snooper escolhe seu filtro (neste caso, o filtro mais simples que aceita tudo)
-        QueryFilter snooperFilter = new AcceptAllFilter(); 
-
-        // MODIFICADO: Passa o observador E o filtro para o modelo
-        model.addQueryObserver( new WebSearchModel.QueryObserver() {
+        // 1. OBSERVER 'FRIEND'
+        // Cria a estratégia que checa por "friend" (case-insensitive)
+        QueryFilter friendFilter = new ContainsFriendFilter();
+        
+        // Registra o observador com sua estratégia e lógica de impressão
+        model.addQueryObserver( new QueryObserver() {
             @Override
             public void onQuery(String query) {
-                System.out.println("Query: " + query);
+                System.out.println("Oh Yes! " + query);
             }
-        }, snooperFilter);
+        }, friendFilter);
+
+
+        // 2. OBSERVER DE CONSULTAS LONGAS
+        // Cria a estratégia que checa por consultas com mais de 60 caracteres
+        QueryFilter longQueryFilter = new LongQueryFilter();
+        
+        // Registra o observador com sua estratégia e lógica de impressão
+        model.addQueryObserver( new QueryObserver() {
+            @Override
+            public void onQuery(String query) {
+                System.out.println("So long " + query);
+            }
+        }, longQueryFilter);
+        
+        
+        // O código anterior (com o AcceptAllFilter) foi removido.
     }
 }
