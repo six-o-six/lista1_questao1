@@ -1,25 +1,27 @@
 package questao1;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList; // Mantido por compatibilidade, mas a lógica usa Map
+import java.util.List;    // Mantido por compatibilidade, mas a lógica usa Map
 
 /**
  * Perform "web search" (from a  file), notify the interested observers of each query.
  */
 public class WebSearchModel {
     private final File sourceFile;
-    private final List<QueryObserver> observers = new ArrayList<>();
-    private final QueryFilter queryFilter; // NOVO: Campo para a Strategy (filtro)
+    // Alterado de List para Map: associa cada observador (Key) ao seu filtro (Value)
+    private final Map<QueryObserver, QueryFilter> observers = new HashMap<>(); 
+    // O campo 'queryFilter' global foi removido
 
     public interface QueryObserver {
         void onQuery(String query);
     }
 
-    // CONSTRUTOR MODIFICADO para receber a Strategy
-    public WebSearchModel(File sourceFile, QueryFilter queryFilter) {
+    // Construtor do Modelo revertido para a versão original, sem filtro global.
+    public WebSearchModel(File sourceFile) {
         this.sourceFile = sourceFile;
-        this.queryFilter = queryFilter;
     }
 
     public void pretendToSearch() {
@@ -29,23 +31,30 @@ public class WebSearchModel {
                 if (line == null) {
                     break;
                 }
-                // USO DA STRATEGY: Aplica o filtro antes de notificar
-                if (queryFilter.shouldProcess(line)) { 
-                    notifyAllObservers(line);
-                }
+                notifyAllObservers(line);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void addQueryObserver(QueryObserver queryObserver) {
-        observers.add(queryObserver);
+    // MÉTODO MODIFICADO: Agora aceita um QueryFilter junto com o observador
+    public void addQueryObserver(QueryObserver queryObserver, QueryFilter queryFilter) {
+        observers.put(queryObserver, queryFilter); // Armazena o par
     }
+    
+    // O antigo addQueryObserver(QueryObserver) foi removido.
 
     private void notifyAllObservers(String line) {
-        for (QueryObserver obs : observers) {
-            obs.onQuery(line);
+        // Itera sobre todos os pares (Observer, Filter)
+        for (Map.Entry<QueryObserver, QueryFilter> entry : observers.entrySet()) {
+            QueryObserver obs = entry.getKey();
+            QueryFilter filter = entry.getValue();
+
+            // Aplica o filtro específico do observador antes de notificá-lo
+            if (filter.shouldProcess(line)) { 
+                obs.onQuery(line);
+            }
         }
     }
 }
